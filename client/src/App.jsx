@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
+import Landing from './pages/Landing'
 
 // Protected route - if not logged in, go to login page
 const PrivateRoute = ({ children }) => {
@@ -17,6 +18,7 @@ const App = () => {
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/' element={<Landing />} />
           <Route
             path='/dashboard'
             element={
@@ -26,7 +28,7 @@ const App = () => {
             }
           />
           {/* Default route */}
-          <Route path='*' element={<Navigate to="/login"/>}/>
+          <Route path='*' element={<Navigate to="/"/>}/>
         </Routes>
       </BrowserRouter>
   )
