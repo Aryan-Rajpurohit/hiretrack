@@ -1,30 +1,44 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext"
-import { useNavigate, Link} from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import API from "../api/axios"
 
 
-export default function Register () {
-  const [form, setForm] = useState({name:"", email:"", password:""})
+export default function Register() {
+  const [form, setForm] = useState({ name: "", email: "", password: "" })
   const [error, setError] = useState("")
   const { login } = useAuth()
   const navigate = useNavigate()
-  
+
   const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value})
+    setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
+
+    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+      setError("All fields are required");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    if (!form.email.includes("@")) {
+      setError("Please enter a valid email");
+      return;
+    }
+
     try {
       const res = await API.post("/auth/register", form);
       login(res.data.token, res.data.name);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed")
+      setError(err.response?.data?.message || "Registration failed");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -38,12 +52,12 @@ export default function Register () {
 
         <div className="flex flex-col gap-4">
           <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={handleChange}
-          className="bg-gray-800 text-white px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={form.name}
+            onChange={handleChange}
+            className="bg-gray-800 text-white px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
           <input
             type="email"
             name="email"

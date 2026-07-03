@@ -14,16 +14,22 @@ export default function Login() {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setError("")
+        e.preventDefault();
+        setError("");
+
+        if (!form.email.trim() || !form.password.trim()) {
+            setError("All fields are required");
+            return;
+        }
+
         try {
-            const res = await API.post("/auth/login", form)
+            const res = await API.post("/auth/login", form);
             login(res.data.token, res.data.name);
             navigate("/dashboard");
         } catch (err) {
-            setError(err.response?.data?.message || "Login failed")
+            setError(err.response?.data?.message || "Login failed");
         }
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -53,7 +59,7 @@ export default function Login() {
                         onChange={handleChange}
                         className="bg-gray-800 text-white px-4 py-3 rounded-xl outline-none focus:ring-blue-500" />
                     <button
-                    onClick={handleSubmit}
+                        onClick={handleSubmit}
                         className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition">Login</button>
                 </div>
                 <p className="text-gray-400 text-center mt-6">
