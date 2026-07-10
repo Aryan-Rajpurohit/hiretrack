@@ -5,11 +5,11 @@ import API from "../api/axios";
 const STATUSES = ["Applied", "Screening", "Interview", "Offer", "Rejected"];
 
 const STATUS_STYLES = {
-  Applied:   { dot: "bg-blue-500",   badge: "bg-blue-500/15 text-blue-400",    accent: "bg-blue-500" },
+  Applied: { dot: "bg-blue-500", badge: "bg-blue-500/15 text-blue-400", accent: "bg-blue-500" },
   Screening: { dot: "bg-yellow-500", badge: "bg-yellow-500/15 text-yellow-400", accent: "bg-yellow-500" },
   Interview: { dot: "bg-purple-500", badge: "bg-purple-500/15 text-purple-400", accent: "bg-purple-500" },
-  Offer:     { dot: "bg-green-500",  badge: "bg-green-500/15 text-green-400",   accent: "bg-green-500" },
-  Rejected:  { dot: "bg-red-500",    badge: "bg-red-500/15 text-red-400",       accent: "bg-red-500" },
+  Offer: { dot: "bg-green-500", badge: "bg-green-500/15 text-green-400", accent: "bg-green-500" },
+  Rejected: { dot: "bg-red-500", badge: "bg-red-500/15 text-red-400", accent: "bg-red-500" },
 };
 
 const SOURCES = [
@@ -33,6 +33,11 @@ export default function Dashboard() {
   const [editJob, setEditJob] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [expandedNotes, setExpandedNotes] = useState({})
+
+  const toggleNote = (id) => {
+    setExpandedNotes((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
 
   useEffect(() => {
     fetchJobs();
@@ -110,10 +115,10 @@ export default function Dashboard() {
     }
   };
 
-  const total      = jobs.length;
+  const total = jobs.length;
   const interviews = jobs.filter((j) => j.status === "Interview").length;
-  const offers     = jobs.filter((j) => j.status === "Offer").length;
-  const rejected   = jobs.filter((j) => j.status === "Rejected").length;
+  const offers = jobs.filter((j) => j.status === "Offer").length;
+  const rejected = jobs.filter((j) => j.status === "Rejected").length;
 
   const filteredStatuses =
     activeFilter === "All"
@@ -150,10 +155,10 @@ export default function Dashboard() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "TOTAL APPLIED", value: total,      color: "text-blue-400",   icon: "📋", top: "bg-blue-500",   iconBg: "bg-blue-500/10" },
-            { label: "INTERVIEWS",    value: interviews,  color: "text-purple-400", icon: "🎯", top: "bg-purple-500", iconBg: "bg-purple-500/10" },
-            { label: "OFFERS",        value: offers,      color: "text-green-400",  icon: "✅", top: "bg-green-500",  iconBg: "bg-green-500/10" },
-            { label: "REJECTED",      value: rejected,    color: "text-red-400",    icon: "❌", top: "bg-red-500",    iconBg: "bg-red-500/10" },
+            { label: "TOTAL APPLIED", value: total, color: "text-blue-400", icon: "📋", top: "bg-blue-500", iconBg: "bg-blue-500/10" },
+            { label: "INTERVIEWS", value: interviews, color: "text-purple-400", icon: "🎯", top: "bg-purple-500", iconBg: "bg-purple-500/10" },
+            { label: "OFFERS", value: offers, color: "text-green-400", icon: "✅", top: "bg-green-500", iconBg: "bg-green-500/10" },
+            { label: "REJECTED", value: rejected, color: "text-red-400", icon: "❌", top: "bg-red-500", iconBg: "bg-red-500/10" },
           ].map((s) => (
             <div
               key={s.label}
@@ -239,12 +244,12 @@ export default function Dashboard() {
                 {filtered.map((job) => (
                   <div
                     key={job._id}
-                    className="relative rounded-2xl border border-white/5 overflow-hidden transition hover:border-white/10"
+                    className="relative rounded-2xl border border-white/5 overflow-hidden transition hover:border-white/10 flex flex-col"
                     style={{ background: "rgba(255,255,255,0.03)" }}
                   >
                     <div className={"absolute left-0 top-0 bottom-0 w-[3px] " + STATUS_STYLES[job.status].accent} />
 
-                    <div className="pl-5 pr-4 pt-4 pb-4">
+                    <div className="pl-5 pr-4 pt-4 pb-4 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h4 className="text-white font-medium text-base leading-tight">
@@ -271,7 +276,19 @@ export default function Dashboard() {
                           className="rounded-lg px-3 py-2 mb-3 border border-white/5 text-gray-400 text-xs"
                           style={{ background: "rgba(255,255,255,0.03)" }}
                         >
-                          📝 {job.notes}
+                          <div className="flex justify-between items-start gap-2">
+                            <span className={expandedNotes[job._id] ? "" : "line-clamp-2"}>
+                              📝 {job.notes}
+                            </span>
+                            {job.notes.length > 80 ? (
+                              <button
+                                onClick={() => toggleNote(job._id)}
+                                className="text-blue-400 hover:text-blue-300 transition shrink-0"
+                              >
+                                {expandedNotes[job._id] ? "less" : "more"}
+                              </button>
+                            ) : null}
+                          </div>
                         </div>
                       ) : null}
 
@@ -286,7 +303,7 @@ export default function Dashboard() {
                         </a>
                       ) : null}
 
-                      <div className="flex gap-2 pt-1">
+                      <div className="flex gap-2 pt-1 mt-auto">
                         <button
                           onClick={() => openEditModal(job)}
                           className="flex-1 text-xs py-2 rounded-lg text-gray-400 hover:text-white border border-white/6 transition"
